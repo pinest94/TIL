@@ -29,3 +29,8 @@
 
 ### result
 * 연산이 많거나 복잡한 경우에 parallelStream을 사용하면 성능의 향상을 기대할 수 있다. 하지만 공유된 thread pool을 사용하기 때문에 잠재적으로 심각한 성능장애를 일으킬 수도 있다. 또한 아직 이유는 모르겠지만 ~~(추후에 알게되면 업데이트 할 예정)~~ Stream사용 시 1344, 45, 67처럼 시간이 크게 튀는 경우가 발생한다. 복잡하거나 많은 연산이 아니면 for-loop를 사용하는 것도 좋을 것 같다.
+
+### reference
+* Java 8 in Action
+* https://m.blog.naver.com/PostView.nhn?blogId=tmondev&logNo=220945933678&proxyReferer=https:%2F%2Fwww.google.com%2F
+* https://dev0101.tistory.com/36
