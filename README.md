@@ -11,4 +11,3 @@
 * Docker
 * Kubernetes
 * JUnit5
-* [Redis](https://github.com/mentalK94/TIL/tree/master/redis)
