@@ -20,3 +20,13 @@ Redis는 Single threaded이기 때문에 한 번에 딱 하나의 명령어만 �
 * 대기열 : Redis List 자료구조를 사용하면 간단한 영구 대기열을 구현할 수 있다. Redis List는 자동 작업 및 차단 기능을 제공하기 때문에 메시지 브로커 또는 순환 목록이 필요한 다양한 애플리케이션에 적합하다.
 * 채팅 및 메시징 : Redis에서는 패턴 매칭과 더불어 **PUB/SUB** 표준을 지원한다. 따라서 Redis를 사용하여 고성능 채팅방, 실시간 코멘트 스트림 및 서버 상호 통신을 지원할 수 있다. 또한 PUB/SUB를 사용하여 게시된 이벤트를 기반으로 작업을 트리거할 수 있다.
 * 속도 제한 : Redis는 이벤트 속도를 측정하고 필요한 경우 제한할 수 있다. 클라이언트의 API 키에 연결된 Redis 카운터를 사용하여 특정 기간 동안 액세스 요청의 수를 세고 한도가 초과되는 경우 조치를 취할 수 있다. 속도 제한기는 포럼의 게시물 수를 제한하고, 리소스 사용량을 제한하며, 스패머의 영향을 억제하는 데 주로 사용된다. ~~(이 부분은 정확하게 이해하지 못했다)~~
+
+### reference
+* https://aws.amazon.com/ko/elasticache/what-is-redis/
+* https://velog.io/@hyeondev/Redis-%EB%9E%80-%EB%AC%B4%EC%97%87%EC%9D%BC%EA%B9%8C
+* https://brunch.co.kr/@jehovah/20
+
+### 관련 특강
+* [강대명-오픈소스 속에서 성장하기](!https://devground.hanbit.co.kr/2019/11/21/%EA%B0%95%EB%8C%80%EB%AA%85-%EC%98%A4%ED%94%88%EC%86%8C%EC%8A%A4-%EC%86%8D%EC%97%90%EC%84%9C-%EC%84%B1%EC%9E%A5%ED%95%98%EA%B8%B0/) 개발자에게 있어서 오픈소스를 다시 생각하게끔 만드는 강의였다 👏👏👏
+* [강대명-우아한 Redis](!https://www.youtube.com/watch?v=mPB2CZiAkKM) 아직 보지 못했지만 추후 시간날 때 봐야하는 Redis 특강 👀
+* [[10분 테코톡] 🤔디디의 Redis](!https://www.youtube.com/watch?v=Gimv7hroM8A) Redis의 간단 명료하게 잘 설명해주는 우아한 테코톡 디디님 👍
