@@ -27,6 +27,6 @@ Redis는 Single threaded이기 때문에 한 번에 딱 하나의 명령어만 �
 * https://brunch.co.kr/@jehovah/20
 
 ### 관련 특강
-* [강대명-오픈소스 속에서 성장하기](!https://devground.hanbit.co.kr/2019/11/21/%EA%B0%95%EB%8C%80%EB%AA%85-%EC%98%A4%ED%94%88%EC%86%8C%EC%8A%A4-%EC%86%8D%EC%97%90%EC%84%9C-%EC%84%B1%EC%9E%A5%ED%95%98%EA%B8%B0/) 개발자에게 있어서 오픈소스를 다시 생각하게끔 만드는 강의였다 👏👏👏
-* [강대명-우아한 Redis](!https://www.youtube.com/watch?v=mPB2CZiAkKM) 아직 보지 못했지만 추후 시간날 때 봐야하는 Redis 특강 👀
-* [[10분 테코톡] 🤔디디의 Redis](!https://www.youtube.com/watch?v=Gimv7hroM8A) Redis의 간단 명료하게 잘 설명해주는 우아한 테코톡 디디님 👍
+* [강대명-오픈소스 속에서 성장하기](https://devground.hanbit.co.kr/2019/11/21/%EA%B0%95%EB%8C%80%EB%AA%85-%EC%98%A4%ED%94%88%EC%86%8C%EC%8A%A4-%EC%86%8D%EC%97%90%EC%84%9C-%EC%84%B1%EC%9E%A5%ED%95%98%EA%B8%B0/) 개발자에게 있어서 오픈소스를 다시 생각하게끔 만드는 강의였다 👏👏👏
+* [강대명-우아한 Redis](https://www.youtube.com/watch?v=mPB2CZiAkKM) 아직 보지 못했지만 추후 시간날 때 봐야하는 Redis 특강 👀
+* [[10분 테코톡] 🤔디디의 Redis](https://www.youtube.com/watch?v=Gimv7hroM8A) Redis의 간단 명료하게 잘 설명해주는 우아한 테코톡 디디님 👍
