@@ -9,5 +9,6 @@ Spring Boot Project에서 Redis를 연동하여 각종 다양한 사용법들을
 ```
 
 ### Docker에 Redis Server 생성하는 방법을 알아봅시다
-✔ Docker를 사용하고 있어야 합니다.
-👉 docker run -p 6379:6379 --name redis -d redis
+* ✔ Docker를 사용하고 있어야 합니다.
+* redis container 생성 👉 docker run -p 6379:6379 --name redis -d redis
+* redis-cli 👉 docker run -it --link redis:redis --rm redis redis-cli -h redis -p 6379
