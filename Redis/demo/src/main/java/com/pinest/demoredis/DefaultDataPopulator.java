@@ -3,6 +3,7 @@ package com.pinest.demoredis;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -13,8 +14,12 @@ public class DefaultDataPopulator implements ApplicationRunner {
     @Autowired
     TransactionRepository transactionRepository;
 
+    @Autowired
+    StringRedisTemplate redisTemplate;
+
     @Override
     public void run(ApplicationArguments args) throws Exception {
+
         Transaction transaction = new Transaction();
         transaction.setProduct("나이키 신발");
         transaction.setCreatedAt(LocalDateTime.now());
