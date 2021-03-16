@@ -8,7 +8,7 @@
 배치 처리를 하기 위한 Spring Framework 기반 기술이다. Spring에서 지원하는 기술을 적용할 수 있고 스프링 배치의 실행 단위는 Job과 Step이 있다.
 
 ## Spring Architecture
-
+![spring batch architecture](https://user-images.githubusercontent.com/31653025/111321350-30baa500-86ab-11eb-81ee-ddf4d6bdc7e8.png)
 * Job은 JobLauncher에 의해 실행
 * Job은 배치의 실행 단위를 의미
 * Job은 N개의 Step을 실행할 수 있으며, 흐름(Flow)을 관리할 수 있다. (ex. A Step실행 후 조건에 따라 B또는 C Step을 실행하도록 설정 가능)
