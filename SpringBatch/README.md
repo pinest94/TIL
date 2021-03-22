@@ -27,6 +27,13 @@
 * ItemWriter는 배치 처리 대상 객체를 처리한다.
     * DB UPDATE를 하거나, 처리 대상 사용자에게 알림을 보낸다.
 
+### Spring Batch Meta-Table
+<img width="847" alt="Spring Batch meta table" src="https://user-images.githubusercontent.com/31653025/112008814-2b58d100-8b69-11eb-8c69-bb06f3d692db.png">
+
+* BATCH_JOB_INSTANCE
+    * Job이 실행되며 생성되는 최상위 계층의 테이블
+    * job_name과 job_key를 기준으로 하나의 row가 생성되며, 같은 job_name과 job_key가 저장될 수 없다.
+
 ### requirement
 
 ```
