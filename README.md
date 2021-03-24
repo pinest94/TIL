@@ -13,3 +13,4 @@
 * Kubernetes
 * JUnit5
 * [Redis](https://github.com/mentalK94/TIL/tree/master/Redis)
+* [Spring Data JPA](https://github.com/mentalK94/TIL/tree/master/JPA)
