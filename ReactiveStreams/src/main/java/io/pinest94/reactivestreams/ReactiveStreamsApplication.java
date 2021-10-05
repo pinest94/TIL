@@ -43,6 +43,14 @@ public class ReactiveStreamsApplication {
 
     @Bean
     ThreadPoolTaskExecutor tp() {
+        /***
+         * setCorePoolSize, setMaxPoolSize, setQueueCapacity를 알아보자
+         * 기본적으로 스레드의 풀사이즈는 setCorePoolSize의 설정 값을 따른다. 여기까지는 어렵지 않다.
+         * 만약 10개의 스레드가 모두 사용 중이고 11번째 스레드 사용 요청이 들어오면 어떻게 될까?
+         * 정답은 setQueueCapacity으로 설정된 큐에 해당 요청을 대기시킨다.
+         * 그래서 해당 큐가 모두 꽉차게 될때(=setQueueCapacity) 스레드를 증가시키고 최대 setMaxPoolSize값만큼 증가시킨다.
+         * 주의❗ 11번째 스레드 요청이 들어올 때 setMaxPoolSize값 만큼 스레드가 증가하는 것이 아니다.
+         */
         ThreadPoolTaskExecutor threadPoolTaskExecutor = new ThreadPoolTaskExecutor();
         threadPoolTaskExecutor.setCorePoolSize(10);
         threadPoolTaskExecutor.setMaxPoolSize(100);
