@@ -1,7 +1,7 @@
 package io.pinest94.reactivestreams;
 
+import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
-import java.util.concurrent.ThreadPoolExecutor;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
@@ -13,6 +13,8 @@ import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -30,6 +32,26 @@ public class ReactiveStreamsApplication {
      * 4. @Bean으로 정의된 ThreadPoolTaskExecutor가 있다면 @Async는 디폴트로 빈에 정의된 것을 사용한다.
      * 5. 각 메서드마다 스레드 풀 정책을 달리하고 싶어서 정의된 것이 여러 개인 경우에는 @Async(value = "tp")으로 사용하면 된다.
      */
+
+    @RestController
+    public static class MyController {
+        @GetMapping("/callable")
+        public Callable<String> callable() throws InterruptedException {
+            log.info("callable");
+            return () -> {
+                log.info("async");
+                Thread.sleep(5000);
+                return "hello";
+            };
+        }
+
+        @GetMapping("/async")
+        public String async() throws InterruptedException {
+            log.info("async");
+            Thread.sleep(5000);
+            return "hello";
+        }
+    }
 
     @Component
     public static class MyService {
