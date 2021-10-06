@@ -1,6 +1,9 @@
 package io.pinest94.reactivestreams;
 
+import java.util.Queue;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Future;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +18,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.async.DeferredResult;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,6 +39,9 @@ public class ReactiveStreamsApplication {
 
     @RestController
     public static class MyController {
+
+        Queue<DeferredResult<String>> results = new ConcurrentLinkedQueue<>();
+
         @GetMapping("/callable")
         public Callable<String> callable() throws InterruptedException {
             log.info("callable");
@@ -43,6 +50,28 @@ public class ReactiveStreamsApplication {
                 Thread.sleep(5000);
                 return "hello";
             };
+        }
+
+        @GetMapping("/dr")
+        public DeferredResult<String> deferred() {
+            log.info("dr");
+            DeferredResult<String> dr = new DeferredResult<>();
+            results.add(dr);
+            return dr;
+        }
+
+        @GetMapping("/dr/count")
+        public String drcount() {
+            return String.valueOf(results.size());
+        }
+
+        @GetMapping("/dr/event")
+        public String drevent(String msg) {
+            for(DeferredResult<String> dr : results) {
+                dr.setResult("Hello " + msg);
+                results.remove(dr);
+            }
+            return "OK";
         }
 
         @GetMapping("/async")
