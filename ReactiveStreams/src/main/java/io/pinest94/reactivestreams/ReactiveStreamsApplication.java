@@ -4,6 +4,7 @@ import java.util.Queue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.async.DeferredResult;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -41,6 +43,7 @@ public class ReactiveStreamsApplication {
     public static class MyController {
 
         Queue<DeferredResult<String>> results = new ConcurrentLinkedQueue<>();
+        static String description = "Hi! My name is hansol kim";
 
         @GetMapping("/callable")
         public Callable<String> callable() throws InterruptedException {
@@ -79,6 +82,24 @@ public class ReactiveStreamsApplication {
             log.info("async");
             Thread.sleep(5000);
             return "hello";
+        }
+
+        @GetMapping("/emitter")
+        public ResponseBodyEmitter emitter() {
+            ResponseBodyEmitter emitter = new ResponseBodyEmitter();
+
+            Executors.newSingleThreadExecutor().submit(() -> {
+                try {
+                    emitter.send("<p>");
+                    for(int i=0; i<=description.length(); ++i) {
+                        emitter.send(description.charAt(i));
+                        Thread.sleep(100);
+                    }
+                    emitter.send("</p>");
+                } catch (Exception e) {}
+            });
+
+            return emitter;
         }
     }
 
