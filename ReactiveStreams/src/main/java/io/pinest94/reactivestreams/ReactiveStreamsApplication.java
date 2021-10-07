@@ -2,7 +2,6 @@ package io.pinest94.reactivestreams;
 
 import java.util.Queue;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -12,16 +11,22 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.Netty4ClientHttpRequestFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
+import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.AsyncRestTemplate;
 import org.springframework.web.context.request.async.DeferredResult;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter;
 
+import io.netty.channel.nio.NioEventLoopGroup;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -44,6 +49,8 @@ public class ReactiveStreamsApplication {
 
         Queue<DeferredResult<String>> results = new ConcurrentLinkedQueue<>();
         static String description = "Hi! My name is hansol kim";
+        AsyncRestTemplate rt = new AsyncRestTemplate(
+                new Netty4ClientHttpRequestFactory(new NioEventLoopGroup(1)));
 
         @GetMapping("/callable")
         public Callable<String> callable() throws InterruptedException {
@@ -70,7 +77,7 @@ public class ReactiveStreamsApplication {
 
         @GetMapping("/dr/event")
         public String drevent(String msg) {
-            for(DeferredResult<String> dr : results) {
+            for (DeferredResult<String> dr : results) {
                 dr.setResult("Hello " + msg);
                 results.remove(dr);
             }
@@ -91,7 +98,7 @@ public class ReactiveStreamsApplication {
             Executors.newSingleThreadExecutor().submit(() -> {
                 try {
                     emitter.send("<p>");
-                    for(int i=0; i<=description.length(); ++i) {
+                    for (int i = 0; i <= description.length(); ++i) {
                         emitter.send(description.charAt(i));
                         Thread.sleep(100);
                     }
@@ -100,6 +107,35 @@ public class ReactiveStreamsApplication {
             });
 
             return emitter;
+        }
+
+        /***
+         * 외부 API를 호출하는데 호출되는 곳에서 로직이 오래걸리는 경우(실습용으로 2초 설정)
+         * 현재 RestTemplate의 getForObject 메소드는 blocking 메소드이다.
+         * 즉, 요청을 보내고 응답이 올때까지 blocking이 된다는 뜻이다.
+         * 물론 요청을 보내고 바로 응답이 온다면 별 문제가 없겠지만 2초가 걸리게 되면(오래걸리게 되면) 해당 스레드는 요청을 보내고 2초간 놀게 된다.
+         * 2초동안 스레드가 놀게된다는 것은 다른 요청을 받지 못하고 대기상태가 되어 해당 서버컴퓨터의 CPU가 놀게된다는 뜻을 의미한다. 상당히 효율적이지 못하다.
+         * 그래서 non-blocking을 제공하는 AsyncRestTemplate을 사용하여 실습을 진행했다.
+         * @return
+         */
+
+        @GetMapping("/rest/{idx}")
+        public DeferredResult<String> rest(@PathVariable int idx) {
+            DeferredResult<String> dr = new DeferredResult<>();
+
+            ListenableFuture<ResponseEntity<String>> future1 = rt.getForEntity(
+                    "http://localhost:8081/service?req={req}", String.class, "hello" + idx);
+            future1.addCallback(s -> {
+                ListenableFuture<ResponseEntity<String>> future2 = rt.getForEntity(
+                        "http://localhost:8081/service2?req={req}", String.class, s.getBody());
+                future2.addCallback(s2-> {
+                    dr.setResult(s2.getBody());
+                }, e -> { dr.setErrorResult(e.getMessage()); });
+            }, e -> {
+                dr.setErrorResult(e.getMessage());
+            });
+
+            return dr;
         }
     }
 
@@ -121,7 +157,7 @@ public class ReactiveStreamsApplication {
          * 만약 10개의 스레드가 모두 사용 중이고 11번째 스레드 사용 요청이 들어오면 어떻게 될까?
          * 정답은 setQueueCapacity으로 설정된 큐에 해당 요청을 대기시킨다.
          * 그래서 해당 큐가 모두 꽉차게 될때(=setQueueCapacity) 스레드를 증가시키고 최대 setMaxPoolSize값만큼 증가시킨다.
-         * 주의❗ 11번째 스레드 요청이 들어올 때 setMaxPoolSize값 만큼 스레드가 증가하는 것이 아니다.
+         * 주의! 11번째 스레드 요청이 들어올 때 setMaxPoolSize값 만큼 스레드가 증가하는 것이 아니다.
          */
         ThreadPoolTaskExecutor threadPoolTaskExecutor = new ThreadPoolTaskExecutor();
         threadPoolTaskExecutor.setCorePoolSize(10);
