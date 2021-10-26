@@ -47,10 +47,16 @@ public class ReactiveStreamsApplication {
     @RestController
     public static class MyController {
 
+        private static final String URL1 = "http://localhost:8081/service?req={req}";
+        private static final String URL2 = "http://localhost:8081/service2?req={req}";
+
         Queue<DeferredResult<String>> results = new ConcurrentLinkedQueue<>();
         static String description = "Hi! My name is hansol kim";
         AsyncRestTemplate rt = new AsyncRestTemplate(
                 new Netty4ClientHttpRequestFactory(new NioEventLoopGroup(1)));
+
+        @Autowired
+        MyService myService;
 
         @GetMapping("/callable")
         public Callable<String> callable() throws InterruptedException {
@@ -124,16 +130,15 @@ public class ReactiveStreamsApplication {
             DeferredResult<String> dr = new DeferredResult<>();
 
             ListenableFuture<ResponseEntity<String>> future1 = rt.getForEntity(
-                    "http://localhost:8081/service?req={req}", String.class, "hello" + idx);
+                    URL1, String.class, "hello" + idx);
             future1.addCallback(s -> {
                 ListenableFuture<ResponseEntity<String>> future2 = rt.getForEntity(
-                        "http://localhost:8081/service2?req={req}", String.class, s.getBody());
-                future2.addCallback(s2-> {
-                    dr.setResult(s2.getBody());
-                }, e -> { dr.setErrorResult(e.getMessage()); });
-            }, e -> {
-                dr.setErrorResult(e.getMessage());
-            });
+                        URL2, String.class, s.getBody());
+                future2.addCallback(s2 -> {
+                    ListenableFuture<String> future3 = myService.work(s2.getBody());
+                    future3.addCallback(s3 -> dr.setResult(s3), e -> dr.setErrorResult(e.getMessage()));
+                }, e -> dr.setErrorResult(e.getMessage()));
+            }, e -> dr.setErrorResult(e.getMessage()));
 
             return dr;
         }
@@ -142,10 +147,8 @@ public class ReactiveStreamsApplication {
     @Component
     public static class MyService {
         @Async
-        public Future<String> hello() throws InterruptedException {
-            log.info("hello()");
-            Thread.sleep(1000L);
-            return new AsyncResult<>("hello");
+        public ListenableFuture<String> work(String req) {
+            return new AsyncResult<>(req + "/asyncwork");
         }
     }
 
@@ -179,9 +182,9 @@ public class ReactiveStreamsApplication {
     ApplicationRunner run() {
         return args -> {
             log.info("run()");
-            Future<String> future = myService.hello();
-            log.info("result : " + future.isDone());
-            log.info("result : " + future.get());
+            // Future<String> future = myService.hello();
+            // log.info("result : " + future.isDone());
+            // log.info("result : " + future.get());
         };
     }
 

@@ -18,7 +18,7 @@ public class LoadTest {
     static AtomicInteger counter = new AtomicInteger(0);
 
     public static void main(String[] args) throws InterruptedException, BrokenBarrierException {
-        ExecutorService executorService = Executors.newFixedThreadPool(100);
+        ExecutorService executorService = Executors.newFixedThreadPool(100 );
 
         RestTemplate restTemplate = new RestTemplate();
         String url = "http://localhost:8080/rest";
