@@ -5,6 +5,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
@@ -27,6 +29,7 @@ import org.springframework.web.context.request.async.DeferredResult;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter;
 
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.pinest94.reactivestreams.completion.Completion;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -46,9 +49,6 @@ public class ReactiveStreamsApplication {
 
     @RestController
     public static class MyController {
-
-        private static final String URL1 = "http://localhost:8081/service?req={req}";
-        private static final String URL2 = "http://localhost:8081/service2?req={req}";
 
         Queue<DeferredResult<String>> results = new ConcurrentLinkedQueue<>();
         static String description = "Hi! My name is hansol kim";
@@ -125,20 +125,28 @@ public class ReactiveStreamsApplication {
          * @return
          */
 
+        private static final String URL1 = "http://localhost:8081/service?req={req}";
+        private static final String URL2 = "http://localhost:8081/service2?req={req}";
+
         @GetMapping("/rest/{idx}")
-        public DeferredResult<String> rest(@PathVariable int idx) {
+        public DeferredResult<String> rest(@PathVariable String idx) {
             DeferredResult<String> dr = new DeferredResult<>();
 
-            ListenableFuture<ResponseEntity<String>> future1 = rt.getForEntity(
-                    URL1, String.class, "hello" + idx);
-            future1.addCallback(s -> {
-                ListenableFuture<ResponseEntity<String>> future2 = rt.getForEntity(
-                        URL2, String.class, s.getBody());
-                future2.addCallback(s2 -> {
-                    ListenableFuture<String> future3 = myService.work(s2.getBody());
-                    future3.addCallback(s3 -> dr.setResult(s3), e -> dr.setErrorResult(e.getMessage()));
-                }, e -> dr.setErrorResult(e.getMessage()));
-            }, e -> dr.setErrorResult(e.getMessage()));
+            Completion
+                    .from(rt.getForEntity(URL1, String.class, "hello" + idx))
+                    .andApply(s -> rt.getForEntity(URL2, String.class, s.getBody()))
+                    .andAccept(s -> dr.setResult(s.getBody()));
+
+//            ListenableFuture<ResponseEntity<String>> future1 = rt.getForEntity(
+//                    URL1, String.class, "hello" + idx);
+//            future1.addCallback(s -> {
+//                ListenableFuture<ResponseEntity<String>> future2 = rt.getForEntity(
+//                        URL2, String.class, s.getBody());
+//                future2.addCallback(s2 -> {
+//                    ListenableFuture<String> future3 = myService.work(s2.getBody());
+//                    future3.addCallback(s3 -> dr.setResult(s3), e -> dr.setErrorResult(e.getMessage()));
+//                }, e -> dr.setErrorResult(e.getMessage()));
+//            }, e -> dr.setErrorResult(e.getMessage()));
 
             return dr;
         }
