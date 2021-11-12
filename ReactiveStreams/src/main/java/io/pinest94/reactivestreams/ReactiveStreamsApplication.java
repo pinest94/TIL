@@ -135,6 +135,7 @@ public class ReactiveStreamsApplication {
             Completion
                     .from(rt.getForEntity(URL1, String.class, "hello" + idx))
                     .andApply(s -> rt.getForEntity(URL2, String.class, s.getBody()))
+                    .andError(e->dr.setErrorResult(e.toString()))
                     .andAccept(s -> dr.setResult(s.getBody()));
 
 //            ListenableFuture<ResponseEntity<String>> future1 = rt.getForEntity(

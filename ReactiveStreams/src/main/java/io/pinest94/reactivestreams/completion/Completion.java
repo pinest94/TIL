@@ -24,6 +24,12 @@ public class Completion {
         return c;
     }
 
+    public Completion andError(Consumer<Throwable> econ) {
+        Completion c = new ErrorCompletion(econ);
+        this.next = c;
+        return c;
+    }
+
     public static Completion from(ListenableFuture<ResponseEntity<String>> listenableFuture) {
         Completion c = new Completion();
         listenableFuture.addCallback(s -> c.complete(s), e -> c.error(e));
@@ -31,7 +37,7 @@ public class Completion {
     }
 
     protected void error(Throwable e) {
-
+        if(next != null) next.error(e);
     }
 
     protected void complete(ResponseEntity<String> s) {

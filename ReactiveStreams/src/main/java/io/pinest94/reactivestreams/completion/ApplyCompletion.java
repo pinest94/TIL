@@ -1,6 +1,5 @@
 package io.pinest94.reactivestreams.completion;
 
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 import org.springframework.http.ResponseEntity;
