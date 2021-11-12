@@ -4,7 +4,7 @@ import java.util.function.Consumer;
 
 import org.springframework.http.ResponseEntity;
 
-public class ErrorCompletion extends Completion {
+public class ErrorCompletion<T> extends Completion<T, T> {
     public Consumer<Throwable> econ;
 
     public ErrorCompletion(Consumer<Throwable> econ) {
@@ -12,7 +12,7 @@ public class ErrorCompletion extends Completion {
     }
 
     @Override
-    void run(ResponseEntity<String> value) {
+    void run(T value) {
         if (next != null) { next.run(value); }
     }
 }
