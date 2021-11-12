@@ -2,6 +2,7 @@ package io.pinest94.reactivestreams;
 
 import java.util.Queue;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -132,32 +133,29 @@ public class ReactiveStreamsApplication {
         public DeferredResult<String> rest(@PathVariable String idx) {
             DeferredResult<String> dr = new DeferredResult<>();
 
-            Completion
-                    .from(rt.getForEntity(URL1, String.class, "hello" + idx))
-                    .andApply(s -> rt.getForEntity(URL2, String.class, s.getBody()))
-                    .andError(e->dr.setErrorResult(e.toString()))
-                    .andAccept(s -> dr.setResult(s.getBody()));
+            toCF(rt.getForEntity(
+                    URL1, String.class, "hello" + idx))
+                    .thenCompose(s -> toCF(rt.getForEntity(URL2, String.class, s.getBody())))
+                    .thenApplyAsync(s2 -> myService.work(s2.getBody()))
+                    .thenAccept(s3 -> dr.setResult(s3))
+                    .exceptionally(e -> {
+                        dr.setErrorResult(e.getMessage());
+                        return null;
+                    });
+            return null;
+        }
 
-//            ListenableFuture<ResponseEntity<String>> future1 = rt.getForEntity(
-//                    URL1, String.class, "hello" + idx);
-//            future1.addCallback(s -> {
-//                ListenableFuture<ResponseEntity<String>> future2 = rt.getForEntity(
-//                        URL2, String.class, s.getBody());
-//                future2.addCallback(s2 -> {
-//                    ListenableFuture<String> future3 = myService.work(s2.getBody());
-//                    future3.addCallback(s3 -> dr.setResult(s3), e -> dr.setErrorResult(e.getMessage()));
-//                }, e -> dr.setErrorResult(e.getMessage()));
-//            }, e -> dr.setErrorResult(e.getMessage()));
-
-            return dr;
+        <T> CompletableFuture<T> toCF(ListenableFuture<T> lf) {
+            CompletableFuture<T> cf = new CompletableFuture<T>();
+            lf.addCallback(s -> cf.complete(s), e -> cf.completeExceptionally(e));
+            return cf;
         }
     }
 
     @Component
     public static class MyService {
-        @Async
-        public ListenableFuture<String> work(String req) {
-            return new AsyncResult<>(req + "/asyncwork");
+        public String work(String req) {
+            return req + "/asyncwork";
         }
     }
 
